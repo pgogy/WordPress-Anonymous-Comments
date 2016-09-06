@@ -3,89 +3,117 @@
 class anonymous_comments_display{
 	
 	public function __construct() {			
-		add_filter('get_comment_author', array($this, 'author'));
-		add_filter('get_avatar', array($this, 'avatar'), 1 , 5);
-		add_filter('comment_url', array($this, 'url'));
-		add_filter('comment_email', array($this, 'email'));
+		add_filter('get_comment_author', array($this, 'author'), 10, 3);
+		add_filter('get_avatar', array($this, 'avatar'), 10 , 5);
+		add_filter('get_comment_author_url', array($this, 'url'),10,3);
+		add_filter('comment_email', array($this, 'email'), 10, 3);
 		add_action('comment_form', array($this, 'additional'));
 	}
 	
 	function additional(){
-		echo "<p>" . __("All comments to this site are anonymous") . "</p>";
+		global $post;
+		if(get_post_meta($post->ID, "anonymous_comments",true)!==""){
+			echo "<p>" . __("All comments to this post are anonymous") . "</p>";
+		}
 	}
 	
-	function email( $email ) {
-		if(is_single()){
-			global $post,$comment;
-			
-			if(get_post_meta($post->ID, "anonymous_comments")!==""){
-			
-				if(get_current_user_id()!=0){
-					if(get_post_meta($post->ID, "anonymous_comments")!==""){
-						if(get_post_meta($post->ID, "admin_bypass_anonymous_comments")!==""){
-							return $email;
-						}
-					}
+	function email( $email, $comment_ID, $comment ) {
+		
+		if(is_admin()){
+			if (defined('DOING_AJAX')){
+				if(!DOING_AJAX) {
+					return $author;
 				}
-				
-				if($comment->user_id==$post->post_author){
-					if(get_post_meta($post->ID, "show_author_anonymous_comments")!==""){
+			}
+		}
+
+		global $post,$comment;
+		
+		if(get_post_meta($post->ID, "anonymous_comments",true)!==""){
+		
+			if(get_current_user_id()!=0){
+				if(get_post_meta($post->ID, "anonymous_comments",true)!==""){
+					if(get_post_meta($post->ID, "admin_bypass_anonymous_comments",true)!==""){
 						return $email;
 					}
 				}
-				
-				return "";
-				
 			}
 			
+			if($comment->user_id==$post->post_author){
+				if(get_post_meta($post->ID, "show_author_anonymous_comments",true)!==""){
+					return $email;
+				}
+			}
+			
+			return "";
+			
 		}
+
 	}
 	
-	function url( $url ) {
-		if(is_single()){
-			global $post,$comment;
-			
-			if(get_post_meta($post->ID, "anonymous_comments")!==""){
-			
-				if(get_current_user_id()!=0){
-					if(get_post_meta($post->ID, "anonymous_comments")!==""){
-						if(get_post_meta($post->ID, "admin_bypass_anonymous_comments")!==""){
-							return $url;
-						}
-					}
+	function url( $url, $comment_ID, $comment) {
+	
+		if(is_admin()){
+			if (defined('DOING_AJAX')){
+				if(!DOING_AJAX) {
+					return $author;
 				}
-				
-				if($comment->user_id==$post->post_author){
-					if(get_post_meta($post->ID, "show_author_anonymous_comments")!==""){
+			}
+		}
+		
+		global $post,$comment;
+			
+		if(get_post_meta($post->ID, "anonymous_comments",true)!==""){
+		
+			if(get_current_user_id()!=0){
+				if(get_post_meta($post->ID, "anonymous_comments",true)!==""){
+					if(get_post_meta($post->ID, "admin_bypass_anonymous_comments",true)!==""){
 						return $url;
 					}
 				}
-				
-				return "";
-				
 			}
 			
+			if($comment->user_id==$post->post_author){
+				if(get_post_meta($post->ID, "show_author_anonymous_comments",true)!==""){
+					return $url;
+				}
+			}
+			
+			return "";
+			
 		}
+
 	}
 	
 	function avatar( $avatar, $id_or_email, $size, $default, $alt ) {
 	
-		if(is_single()){
-			global $post,$comment;
+		if(is_admin()){
+			if (defined('DOING_AJAX')){
+				if(!DOING_AJAX) {
+					return $author;
+				}
+			}
+		}
+		
+		global $post,$comment;
 			
-			if(get_post_meta($post->ID, "anonymous_comments")!==""){
+		if(isset($post->ID)){	
+			
+			if(get_post_meta($post->ID, "anonymous_comments",true)!==""){
 			
 				if(get_current_user_id()!=0){
-					if(get_post_meta($post->ID, "anonymous_comments")!==""){
-						if(get_post_meta($post->ID, "admin_bypass_anonymous_comments")!==""){
+					if(get_post_meta($post->ID, "anonymous_comments",true)!==""){
+						if(get_post_meta($post->ID, "admin_bypass_anonymous_comments",true)!==""){
 							return $avatar;
 						}
 					}
 				}
 				
-				if($comment->user_id==$post->post_author){
-					if(get_post_meta($post->ID, "show_author_anonymous_comments")!==""){
-						return $avatar;
+				if(isset($comment->user_id)){
+					if($comment->user_id==$post->post_author){
+						if(get_post_meta($post->ID, "show_author_anonymous_comments",true)!==""){
+							return $avatar;
+						}
 					}
 				}
 				
@@ -94,47 +122,54 @@ class anonymous_comments_display{
 			}
 			
 		}
+
 	}
 	
-	function author($author){
-
-		if(is_single()){
+	function author($author, $comment_ID, $comment){
 	
-			global $post, $comment;
-		
-			if(get_post_meta($post->ID, "anonymous_comments")!==""){
-			
-				if(get_current_user_id()!=0){
-					if(get_post_meta($post->ID, "anonymous_comments")!==""){
-						if(get_post_meta($post->ID, "admin_bypass_anonymous_comments")!==""){
-							return $author;
-						}
-					}
+		if(is_admin()){
+			if (defined('DOING_AJAX')){
+				if(!DOING_AJAX) {
+					return $author;
 				}
-				
-				if($comment->user_id==$post->post_author){
-					if(get_post_meta($post->ID, "show_author_anonymous_comments")!==""){
+			}
+		}
+		
+		if(get_post_meta($comment->comment_post_ID, "anonymous_comments",true)!==""){
+		
+			if(get_current_user_id()!=0){
+				if(get_post_meta($comment->comment_post_ID, "anonymous_comments",true)!==""){
+					if(get_post_meta($comment->comment_post_ID, "admin_bypass_anonymous_comments",true)!==""){
 						return $author;
 					}
 				}
-				
-				$authors = get_post_meta($post->ID, "comment_authors", true);
-				if(!is_array($authors)){
-					$authors = array();
+			}
+			
+			$post = get_post($comment->comment_post_ID);
+			
+			if($comment->user_id==$post->post_author){
+				if(get_post_meta($post->ID, "show_author_anonymous_comments", true)!==""){
+					return $author;
 				}
-					
-				if(!in_array($author, $authors)){
-					$authors[] = $author;
-					update_post_meta($post->ID, "comment_authors", $authors);
-					return __("Anonymous Commenter") . " " . count($authors);
-				}else{
-					return __("Anonymous Commenter") . " " . (array_search ($author, $authors) + 1);	
-				}
-				
+			}
+			
+			$authors = get_post_meta($comment->comment_post_ID, "comment_authors", true);
+			if(!is_array($authors)){
+				$authors = array();
+			}
+			
+			if(!in_array($author, $authors)){
+				$authors[] = $author;
+				update_post_meta($comment->comment_post_ID, "comment_authors", $authors);
+				return __("Anonymous Commenter") . " " . count($authors);
+			}else{
+				return __("Anonymous Commenter") . " " . (array_search ($author, $authors) + 1);	
 			}
 			
 		}
 		
+		return $author;
+			
 	}
 	
 } 
