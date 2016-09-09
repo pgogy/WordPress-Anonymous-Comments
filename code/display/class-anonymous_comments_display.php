@@ -6,7 +6,7 @@ class anonymous_comments_display{
 		add_filter('get_comment_author', array($this, 'author'), 10, 3);
 		add_filter('get_avatar', array($this, 'avatar'), 10 , 5);
 		add_filter('get_comment_author_url', array($this, 'url'),10,3);
-		add_filter('comment_email', array($this, 'email'), 10, 3);
+		add_filter('comment_email', array($this, 'email'), 10, 2);
 		add_action('comment_form', array($this, 'additional'));
 	}
 	
@@ -17,7 +17,7 @@ class anonymous_comments_display{
 		}
 	}
 	
-	function email( $email, $comment_ID, $comment ) {
+	function email( $email, $comment_ID) {
 		
 		if(is_admin()){
 			if (defined('DOING_AJAX')){
@@ -128,13 +128,16 @@ class anonymous_comments_display{
 	function author($author, $comment_ID, $comment){
 	
 		if(is_admin()){
-			if (defined('DOING_AJAX')){
+			if (defined('DOING_AJAX')){	
 				if(!DOING_AJAX) {
 					return $author;
 				}
+			}else{
+				return $author;
 			}
+
 		}
-		
+
 		if(get_post_meta($comment->comment_post_ID, "anonymous_comments",true)!==""){
 		
 			if(get_current_user_id()!=0){
@@ -148,19 +151,19 @@ class anonymous_comments_display{
 			$post = get_post($comment->comment_post_ID);
 			
 			if($comment->user_id==$post->post_author){
-				if(get_post_meta($post->ID, "show_author_anonymous_comments", true)!==""){
+				if(get_post_meta($comment->comment_post_ID, "show_author_anonymous_comments", true)!==""){
 					return $author;
 				}
 			}
 			
-			$authors = get_post_meta($comment->comment_post_ID, "comment_authors", true);
+			$authors = get_post_meta($comment->comment_post_ID, "anonymous_comment_authors", true);
 			if(!is_array($authors)){
 				$authors = array();
 			}
 			
 			if(!in_array($author, $authors)){
 				$authors[] = $author;
-				update_post_meta($comment->comment_post_ID, "comment_authors", $authors);
+				update_post_meta($comment->comment_post_ID, "anonymous_comment_authors", $authors);
 				return __("Anonymous Commenter") . " " . count($authors);
 			}else{
 				return __("Anonymous Commenter") . " " . (array_search ($author, $authors) + 1);	
