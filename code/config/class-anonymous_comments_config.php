@@ -17,37 +17,42 @@ class anonymous_comments_config{
 		$author_checked = get_post_meta($post->ID, "show_author_anonymous_comments", true);
 		$admin_checked = get_post_meta($post->ID, "admin_bypass_anonymous_comments", true);
 		?><p><label><?PHP echo __("Enable anonymous comments"); ?></label>
-		<input type="checkbox" name="anonymous_comments" <?PHP if($checked!=""){ echo " checked "; } ?> /></p>
+		<input type="checkbox" value="on" name="anonymous_comments" <?PHP if($checked!=""){ echo " checked "; } ?> /></p>
 		<p><label><?PHP echo __("Show author name in comments"); ?></label>
-		<input type="checkbox" name="show_author_anonymous_comments" <?PHP if($author_checked!=""){ echo " checked "; } ?> /></p>
+		<input type="checkbox" value="on" name="show_author_anonymous_comments" <?PHP if($author_checked!=""){ echo " checked "; } ?> /></p>
 		<p><label><?PHP echo __("Allow admin to bypass anonymity"); ?></label>
-		<input type="checkbox" name="admin_bypass_anonymous_comments" <?PHP if($admin_checked!=""){ echo " checked "; } ?> /></p>
+		<input type="checkbox" value="on" name="admin_bypass_anonymous_comments" <?PHP if($admin_checked!=""){ echo " checked "; } ?> /></p>
 		<?PHP
 	}
 	
 	function save_post($post_id){
-		if(isset($_POST['anonymous_comments'])){
-			if($_POST['anonymous_comments']=="on"){
-				update_post_meta($post_id, "anonymous_comments", "on");
+	
+		if(isset($_POST['action'])){
+			if($_POST['action']=="editpost"){
+				if(isset($_POST['anonymous_comments'])){
+					if($_POST['anonymous_comments']=="on"){
+						update_post_meta($post_id, "anonymous_comments", "on");
+					}
+				}else{
+					delete_post_meta($post_id, "anonymous_comments");
+				}
+				if(isset($_POST['show_author_anonymous_comments'])){
+					if($_POST['show_author_anonymous_comments']=="on"){
+						update_post_meta($post_id, "anonymous_comments", "on");
+						update_post_meta($post_id, "show_author_anonymous_comments", "on");
+					}
+				}else{
+					delete_post_meta($post_id, "show_author_anonymous_comments");
+				}
+				if(isset($_POST['admin_bypass_anonymous_comments'])){
+					if($_POST['admin_bypass_anonymous_comments']=="on"){
+						update_post_meta($post_id, "admin_bypass_anonymous_comments", "on");
+						update_post_meta($post_id, "anonymous_comments", "on");
+					}
+				}else{
+					delete_post_meta($post_id, "admin_bypass_anonymous_comments");
+				}
 			}
-		}else{
-			delete_post_meta($post_id, "anonymous_comments");
-		}
-		if(isset($_POST['show_author_anonymous_comments'])){
-			if($_POST['show_author_anonymous_comments']=="on"){
-				update_post_meta($post_id, "anonymous_comments", "on");
-				update_post_meta($post_id, "show_author_anonymous_comments", "on");
-			}
-		}else{
-			delete_post_meta($post_id, "show_author_anonymous_comments");
-		}
-		if(isset($_POST['admin_bypass_anonymous_comments'])){
-			if($_POST['admin_bypass_anonymous_comments']=="on"){
-				update_post_meta($post_id, "admin_bypass_anonymous_comments", "on");
-				update_post_meta($post_id, "anonymous_comments", "on");
-			}
-		}else{
-			delete_post_meta($post_id, "admin_bypass_anonymous_comments");
 		}
 	}
 	
